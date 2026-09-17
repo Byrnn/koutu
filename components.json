@@ -1,0 +1,26 @@
+{
+  "input": "reference_ui.jpg",
+  "unknown_width": 8,
+  "components": [
+    {
+      "id": "button_departure_01",
+      "type": "button",
+      "bbox": "248,1140,365,118"
+    },
+    {
+      "id": "button_close_01",
+      "type": "button",
+      "bbox": "735,312,88,88"
+    },
+    {
+      "id": "panel_main_01",
+      "type": "panel",
+      "bbox": "20,296,820,970"
+    },
+    {
+      "id": "chest_locked_01",
+      "type": "chest",
+      "bbox": "355,72,155,158"
+    }
+  ]
+}

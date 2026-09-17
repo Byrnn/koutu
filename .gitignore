@@ -1,0 +1,5 @@
+__pycache__/
+components_output*/
+test_*_run/
+components_preview_*.png
+components_test_result*.zip

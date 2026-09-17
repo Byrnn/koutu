@@ -3,8 +3,25 @@ from pathlib import Path
 
 import cv2
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageFile
 from pymatting import estimate_alpha_cf, estimate_foreground_ml
+
+# GitHub can contain partially uploaded JPEGs while a reference asset is being
+# replaced.  Pillow normally aborts on those files; allowing the decoder to
+# return the decodable prefix lets the pipeline produce a truthful diagnostic
+# instead of silently fabricating missing UI pixels.
+ImageFile.LOAD_TRUNCATED_IMAGES = True
+
+
+def load_rgb(path):
+    """Load an RGB image and report whether its byte stream is truncated."""
+    raw = Path(path).read_bytes()
+    truncated = False
+    if raw[:2] == b'\xff\xd8' and b'\xff\xd9' not in raw:
+        truncated = True
+    image = Image.open(path).convert('RGB')
+    image.load()
+    return np.asarray(image, dtype=np.float64) / 255.0, truncated
 
 
 def parse_bbox(text: str):
@@ -85,7 +102,9 @@ def main():
     out = Path(args.output)
     out.mkdir(parents=True, exist_ok=True)
 
-    image = np.asarray(Image.open(args.input).convert('RGB'), dtype=np.float64) / 255.0
+    image, truncated = load_rgb(args.input)
+    if truncated:
+        print('WARNING: input JPEG has no EOI marker; results only cover the decodable pixels.')
     bbox = parse_bbox(args.bbox)
 
     mask = grabcut_mask(image, bbox)

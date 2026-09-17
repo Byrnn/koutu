@@ -44,3 +44,15 @@ python process.py --input reference_ui.jpg --bbox "x,y,w,h" --unknown-width 8 --
 ```
 
 当前版本的“分割”是 CPU 友好的 GrabCut，适合作为第一版 Harness。后续可以把第一步替换成 SAM2 / RMBG / 自定义边缘与深度融合 Mask，而后面的 Trimap、Alpha Matte、Foreground Reconstruction 流程保持不变。
+
+## 语义组件批处理
+
+`batch_process.py` 按组件配置一次处理多个 UI。配置中的 `bbox` 只是可审计的第一版输入，后续可以替换为检测器输出；后面的 Trimap、Matting、Foreground、边缘测试和原坐标画布保持不变。
+
+```bash
+python batch_process.py --config components.json --output components_output
+```
+
+每个组件目录会输出透明 PNG、`status.json` 和黑/白/红/蓝背景测试图；`final_rgba_canvas.png` 保留组件在原截图坐标中的位置，根目录 `report.json` 汇总成功、失败和源图缺失状态，`layers.json` 可直接作为后续 FGUI/网页复原的坐标清单。
+
+GitHub Actions 中运行 `Semantic UI Components`，即可上传同样的 Artifact。若参考 JPEG 被截断，流程会明确标记 `blocked_source_missing`，不会把缺失区域伪装成宝箱或按钮。
