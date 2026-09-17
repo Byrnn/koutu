@@ -1,0 +1,47 @@
+name: UI Alpha Matting
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_path:
+        description: 'Input image path in repository'
+        required: true
+        default: 'reference_ui.jpg'
+      bbox:
+        description: 'Target UI bbox: x,y,w,h'
+        required: true
+        default: '0,0,100,100'
+      unknown_width:
+        description: 'Trimap unknown band width in pixels (3-15 recommended)'
+        required: true
+        default: '8'
+
+jobs:
+  matting:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run matting
+        run: |
+          python process.py \
+            --input "${{ inputs.image_path }}" \
+            --bbox "${{ inputs.bbox }}" \
+            --unknown-width "${{ inputs.unknown_width }}" \
+            --output output
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: matting-results
+          path: output/
+          if-no-files-found: error
