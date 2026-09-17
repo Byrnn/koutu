@@ -1,6 +1,16 @@
 name: Semantic UI Components
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - reference_ui.jpg
+      - components.json
+      - process.py
+      - batch_process.py
+      - requirements.txt
+      - .github/workflows/components.yml
   workflow_dispatch:
     inputs:
       config:
